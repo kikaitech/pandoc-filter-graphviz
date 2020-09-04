@@ -92,20 +92,19 @@ renderDot mfmt rndr src dst =
 graphviz :: Maybe Format -> Block -> IO Block
 graphviz mfmt cblock@(CodeBlock (id, classes, attrs) content) =
   if "graphviz" `elem` classes then do
-    ensureFile dest >> writeFile dest content
+    ensureFile dest >> writeFile dest (T.unpack content)
     img <- renderDot1 mfmt mrndr dest
     ensureFile img
-    return $ Para [Image (id,classes,attrs) [] (img, T.unpack caption)]
+    return $ Para [Image (id,classes,attrs) [] (T.pack img, caption)]
   else return cblock
   where
-    dest = fileName4Code "graphviz" (T.pack content) (Just "dot")
+    dest = fileName4Code "graphviz" content (Just "dot")
     ensureFile fp =
       let dir = takeDirectory fp in
       createDirectoryIfMissing True dir >> doesFileExist fp >>=
         \exist ->
           unless exist $ writeFile fp ""
-    toTextPairs = Prelude.map (\(f,s) -> (T.pack f,T.pack s))
-    m = M.fromList $ toTextPairs $ attrs
+    m = M.fromList $ attrs
     mrndr = case M.lookup "renderer" m of
       Just str -> rendererFromString str
       _ -> Nothing
