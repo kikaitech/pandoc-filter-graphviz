@@ -91,7 +91,7 @@ renderDot mfmt rndr src dst =
 
 graphviz :: Maybe Format -> Block -> IO Block
 graphviz mfmt cblock@(CodeBlock (id, classes, attrs) content) =
-  if "graphviz" `elem` classes then do
+  if "graphviz" `elem` classes || "dot" `elem` classes then do
     ensureFile dest >> writeFile dest (T.unpack content)
     img <- renderDot1 mfmt mrndr dest
     ensureFile img
